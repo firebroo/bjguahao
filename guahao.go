@@ -16,7 +16,7 @@ import (
 var (
     hospitalId string = "142"          /*医院id*/
     departmentId string = "200039602"  /*科室id*/
-    dutyDate string = "2017-03-17"     /*挂号时间*/
+    dutyDate string = "2017-03-22"     /*挂号时间*/
     patientId string = "228398308"     /*病患id*/
 
     mobileNo string = "xxx"    /*手机号码*/
@@ -70,27 +70,18 @@ const (
 
 func InitCookieClient() *http.Client {
     cookieJar, _ := cookiejar.New(nil)
-    client := &http.Client{Jar: cookieJar}
+    client := &http.Client{Jar: cookieJar, Timeout: 1 * time.Second}
     return client
 }
 
-
-func HttpGet(url string) string {
-    resp, err := http.Get(url)
-    if err != nil {}
-
-    defer resp.Body.Close()
-    body, err := ioutil.ReadAll(resp.Body)
-    if err != nil {}
-    return fmt.Sprintf(string(body))
-}
-
 func HttpDo(method string, url string, client *http.Client, data url.Values) string {
-    req, err := http.NewRequest(method, url, ioutil.NopCloser(strings.NewReader(data.Encode())))
+    req, _ := http.NewRequest(method, url, ioutil.NopCloser(strings.NewReader(data.Encode())))
     req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-    if err != nil {}
- 
-    resp, err := client.Do(req)
+    LABEL:
+        resp, err := client.Do(req)
+        if err != nil || resp.StatusCode == 403 {
+            goto LABEL
+        }
 
     defer resp.Body.Close()
                   
